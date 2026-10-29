@@ -1,6 +1,3 @@
-# Lumina-
-A minimalist digital library and mindful reading space prototype featuring an integrated Pomodoro focus timer and local storage reading history tracking.
-
 # Lumina Digital Library
 
 Lumina is a responsive, AI-assisted educational web application prototype built to provide students with a distraction-free digital reading environment. This project was developed by Akanksha Sekhar as part of the Semester 3 End Semester Exam (ESE) for the Artificial Intelligence and Data Science program at Marwadi University.
