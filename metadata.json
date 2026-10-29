@@ -1,0 +1,8 @@
+{
+  "name": "Lumina Digital Library",
+  "description": "A calming, distraction-free digital reading space for university students with integrated focus tools, ambient audio, and intentional discovery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

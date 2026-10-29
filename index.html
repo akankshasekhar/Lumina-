@@ -1,0 +1,1702 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumina — Distraction-Free Digital Library for University Students</title>
+    <meta name="description" content="A calming, distraction-free digital reading space for university students with integrated focus tools and dynamic learning quotes." />
+    
+    <!-- Typography: Merriweather for serif headings & Inter for body text -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              lumina: {
+                bg: '#FAF7F2',
+                surface: '#FFFFFF',
+                espresso: '#2C221E',
+                espressoDark: '#1F1815',
+                muted: '#6B5E57',
+                border: '#E8E0D5',
+                sage: '#5C7C65',
+                sageHover: '#4E6A56',
+                sageActive: '#435B4A',
+                sageTint: '#EEF4F0',
+                sageBorder: '#BCD4C3'
+              }
+            },
+            fontFamily: {
+              serif: ['Merriweather', 'Georgia', 'serif'],
+              sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace']
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      ::selection {
+        background-color: #DDEBE1;
+        color: #1F1815;
+      }
+      .font-serif {
+        font-feature-settings: "kern" 1, "liga" 1;
+      }
+    </style>
+  </head>
+  <body class="bg-[#FAF7F2] text-[#2C221E] font-sans antialiased selection:bg-[#DDEBE1] selection:text-[#1F1815] min-h-screen flex flex-col">
+
+    <!-- 1. STICKY TRANSPARENT NAVBAR -->
+    <header class="sticky top-0 z-40 border-b border-[#E8E0D5] bg-[#FAF7F2]/80 backdrop-blur-md transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        
+        <!-- Brand with Merriweather Serif 'L' -->
+        <a href="#top" class="flex items-center gap-2.5 focus:outline-none group">
+          <div class="w-8 h-8 rounded-lg bg-[#2C221E] text-[#FAF7F2] flex items-center justify-center font-serif font-bold text-base shadow-xs group-hover:bg-[#43352F] transition-colors">
+            L
+          </div>
+          <div>
+            <div class="font-serif text-lg tracking-tight font-bold text-[#2C221E] leading-none">
+              Lumina
+            </div>
+            <div class="text-[11px] text-[#7A6E67] tracking-wider uppercase font-sans mt-0.5 font-medium">
+              Digital Library
+            </div>
+          </div>
+        </a>
+
+        <!-- Center Navigation Links -->
+        <nav class="hidden md:flex items-center gap-2 text-xs font-medium text-[#665A53]">
+          <a href="#catalog" class="px-3 py-1.5 rounded-lg hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors">Curated Catalog</a>
+          <button id="nav-open-bookshelf-link" class="px-3 py-1.5 rounded-lg hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors">My Bookshelf</button>
+          <button id="nav-open-timer-link" class="px-3 py-1.5 rounded-lg hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors">Pomodoro Timer</button>
+        </nav>
+
+        <!-- Right Tools: Bookshelf Counter & 25m Focus Timer Button -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- Interactive Bookshelf Counter in Navbar -->
+          <button 
+            id="navbar-bookshelf-btn"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E4DDD2] bg-white/80 hover:bg-white text-[#554942] transition-all shadow-2xs"
+            title="Open Saved Bookshelf"
+            aria-label="My Bookshelf"
+          >
+            <!-- Bookmark SVG icon -->
+            <svg id="navbar-bookmark-icon" class="w-3.5 h-3.5 text-[#8A8177]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            <span class="hidden sm:inline">Bookshelf</span>
+            <span id="bookshelf-count-badge" class="px-1.5 py-0.2 rounded-full font-mono text-[11px] font-semibold bg-[#EAE2D7] text-[#554942]">
+              0
+            </span>
+          </button>
+
+          <!-- 25m Focus Timer Modal Trigger -->
+          <button 
+            id="navbar-timer-btn"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E4DDD2] bg-white/80 hover:bg-white text-[#554942] transition-all shadow-2xs"
+            title="Open 25m Pomodoro Focus Timer"
+            aria-label="Open 25m Focus Timer"
+          >
+            <!-- Clock SVG icon -->
+            <svg class="w-3.5 h-3.5 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span id="navbar-timer-display" class="font-mono text-xs">25:00</span>
+          </button>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="top" class="max-w-7xl mx-auto px-4 sm:px-6 flex-1 space-y-12">
+      
+      <!-- 2. DYNAMIC HERO SECTION WITH GENEROUS PADDING -->
+      <section class="py-14 sm:py-20 lg:py-24 border-b border-[#E8E0D5]" aria-label="Dynamic Hero Section">
+        <div class="max-w-4xl space-y-6">
+          
+          <div class="flex items-center gap-2 text-xs uppercase tracking-widest text-[#5C7C65] font-semibold">
+            <span>University Reading Sanctuary</span>
+            <span aria-hidden="true">·</span>
+            <span>Single-Page Prototype</span>
+            <span aria-hidden="true">·</span>
+            <span>Focus Mode</span>
+          </div>
+
+          <!-- Headline with Merriweather Serif -->
+          <h1 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#2C221E] leading-[1.2]">
+            Where deep scholarship happens without noise, notifications, or rush.
+          </h1>
+
+          <!-- Body with Inter Sans -->
+          <p class="text-sm sm:text-base text-[#5C504A] leading-relaxed max-w-2xl">
+            Lumina is an EdTech reading environment built to counteract cognitive fragmentation. 
+            Immerse yourself in our curated academic texts, organize your personal bookshelf with 
+            instant local persistence, and cultivate flow using our minimalist 25-minute Pomodoro timer.
+          </p>
+
+          <!-- Dynamic "Quote of the Day" Box with JavaScript Cycling -->
+          <div 
+            id="quote-card"
+            class="p-6 sm:p-7 rounded-2xl bg-white border border-[#E4DBD0] shadow-2xs relative overflow-hidden transition-all duration-300"
+          >
+            <div class="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#F0EAE0]">
+              <div class="flex items-center gap-2 text-xs font-medium text-[#5C7C65]">
+                <svg class="w-4 h-4 fill-[#5C7C65]/20 stroke-[#5C7C65]" viewBox="0 0 24 24" stroke-width="2">
+                  <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 0 4-1.5 6-3 8zm13 0c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 0 4-1.5 6-3 8z"/>
+                </svg>
+                <span class="uppercase tracking-wider text-[11px] font-semibold">Quote of the Day</span>
+                <span aria-hidden="true" className="text-[#C8BEB3]">·</span>
+                <span id="quote-discipline" class="text-[#7A6E67] text-[11px]">Cognitive Science</span>
+              </div>
+
+              <!-- Cycling Controls -->
+              <div class="flex items-center gap-1.5">
+                <span id="quote-counter" class="text-[11px] font-mono text-[#7A6E67] mr-1">1 / 3</span>
+                
+                <button 
+                  id="quote-prev-btn"
+                  class="p-1.5 rounded-md text-[#7A6E67] hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors"
+                  title="Previous Quote"
+                  aria-label="Previous quote"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+
+                <button 
+                  id="quote-toggle-play-btn"
+                  class="p-1.5 rounded-md text-[#7A6E67] hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors"
+                  title="Pause / Resume cycling"
+                  aria-label="Pause quote cycle"
+                >
+                  <svg id="quote-pause-icon" class="w-3.5 h-3.5 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                  </svg>
+                  <svg id="quote-play-icon" class="w-3.5 h-3.5 text-[#5C7C65] hidden fill-current" viewBox="0 0 24 24">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </button>
+
+                <button 
+                  id="quote-next-btn"
+                  class="p-1.5 rounded-md text-[#7A6E67] hover:text-[#2C221E] hover:bg-[#F2ECE3] transition-colors"
+                  title="Next Quote"
+                  aria-label="Next quote"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Quote Body (Merriweather Serif) -->
+            <blockquote id="quote-text" class="font-serif text-base sm:text-lg text-[#2C221E] leading-relaxed italic transition-opacity duration-300">
+              "My experience is what I agree to attend to. Only those items which I notice shape my mind—without selective interest, experience is an utter chaos."
+            </blockquote>
+
+            <div class="mt-4 flex items-center justify-between text-xs text-[#6B5E57]">
+              <div>
+                — <span id="quote-author" class="font-semibold text-[#2C221E]">William James</span>, 
+                <span id="quote-work" class="italic text-[#756860]">The Principles of Psychology (1890)</span>
+              </div>
+
+              <!-- Indicator Dots -->
+              <div id="quote-dots-container" class="flex items-center gap-1.5">
+                <button class="quote-dot h-1.5 w-5 bg-[#5C7C65] rounded-full transition-all" data-index="0" aria-label="Go to quote 1"></button>
+                <button class="quote-dot h-1.5 w-1.5 bg-[#DDD4C9] rounded-full transition-all" data-index="1" aria-label="Go to quote 2"></button>
+                <button class="quote-dot h-1.5 w-1.5 bg-[#DDD4C9] rounded-full transition-all" data-index="2" aria-label="Go to quote 3"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons: Muted Sage Primary -->
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <a 
+              href="#catalog"
+              class="px-5 py-2.5 text-xs font-semibold rounded-lg bg-[#5C7C65] text-white hover:bg-[#4E6A56] active:bg-[#435B4A] transition-colors shadow-2xs flex items-center gap-2"
+            >
+              <span>Explore Curated Catalog</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+
+            <button 
+              id="hero-open-timer-btn"
+              class="px-4 py-2.5 text-xs font-medium rounded-lg bg-white border border-[#DDD4C9] text-[#423630] hover:bg-[#F5EFE6] transition-colors shadow-2xs flex items-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span>Launch 25m Focus Timer</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 3. CURATED BOOK GRID (6 FEATURED BOOKS) -->
+      <section id="catalog" class="space-y-6 pb-20" aria-labelledby="catalog-heading">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8E0D5] pb-4">
+          <div>
+            <h2 id="catalog-heading" class="font-serif text-2xl font-bold text-[#2C221E]">
+              Curated Academic Bookshelf
+            </h2>
+            <p class="text-xs text-[#7A6E67] mt-0.5">
+              6 seminal university texts spanning foundational disciplines · Zero advertisements
+            </p>
+          </div>
+          <span class="text-xs text-[#5C7C65] font-medium font-sans">
+            Minimalist Layout · Unboxed Metadata
+          </span>
+        </div>
+
+        <!-- Responsive 3-Column Grid -->
+        <div id="books-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Dynamically populated via JavaScript -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-[#E8E0D5] bg-[#F5EFE6]/70 py-8 text-xs text-[#7A6E67]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded bg-[#2C221E] text-white flex items-center justify-center font-serif text-xs font-bold">L</div>
+          <span class="font-serif font-medium text-[#2C221E]">Lumina Digital Library</span>
+          <span>· Single-Page Education Prototype</span>
+        </div>
+        <p>Built with HTML5, Tailwind CSS & Vanilla JavaScript. Preserved via localStorage.</p>
+      </div>
+    </footer>
+
+    <!-- =============================================================== -->
+    <!-- 4. SLIDE-OUT BOOKSHELF DRAWER                                   -->
+    <!-- =============================================================== -->
+    <div id="bookshelf-drawer-backdrop" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden transition-opacity" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="absolute inset-y-0 right-0 w-full max-w-md bg-[#FAF7F2] h-full shadow-2xl border-l border-[#E4DDD2] flex flex-col">
+        
+        <!-- Drawer Header -->
+        <div class="px-6 py-5 border-b border-[#E8E0D5] flex items-center justify-between bg-[#F4EFE6]/80">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-[#5C7C65] text-white flex items-center justify-center shadow-xs">
+              <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 id="drawer-title" class="font-serif text-lg font-bold text-[#2C221E]">Personal Bookshelf</h3>
+              <p id="drawer-subtitle" class="text-xs text-[#7A6E67]">Saved texts & reading history</p>
+            </div>
+          </div>
+
+          <button id="close-bookshelf-btn" class="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#2C221E] hover:bg-[#EAE2D7]" aria-label="Close bookshelf">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Drawer Section Tabs: Saved Queue vs Reading History -->
+        <div class="px-6 py-2.5 border-b border-[#E8E0D5] flex items-center gap-2 bg-[#F8F4EE]">
+          <button 
+            id="tab-saved-books" 
+            class="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#5C7C65] text-white shadow-2xs transition-all"
+            aria-selected="true"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>Saved Queue</span>
+            <span id="tab-saved-count" class="px-1.5 py-0.2 rounded-full font-mono text-[10px] font-bold bg-white/20 text-white">0</span>
+          </button>
+          
+          <button 
+            id="tab-reading-history" 
+            class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg text-[#554942] hover:bg-[#EAE2D7] transition-all"
+            aria-selected="false"
+          >
+            <svg class="w-3.5 h-3.5 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Reading History</span>
+            <span id="tab-history-count" class="px-1.5 py-0.2 rounded-full font-mono text-[10px] font-semibold bg-[#EAE2D7] text-[#554942]">0</span>
+          </button>
+        </div>
+
+        <!-- Drawer Content Container -->
+        <div id="drawer-books-list" class="p-6 overflow-y-auto space-y-4 flex-1">
+          <!-- Populated dynamically via JS: Saved Books list or Reading History section -->
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-[#E8E0D5] bg-[#F4EFE6]/60 flex items-center justify-between text-xs">
+          <button id="clear-bookshelf-btn" class="text-[#8E3B3B] hover:underline font-medium">Clear Saved Queue</button>
+          <button id="close-drawer-bottom-btn" class="px-4 py-1.5 rounded-lg bg-[#2C221E] text-white hover:bg-[#43352F] font-medium transition-colors">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- 5. MINIMALIST 25-MINUTE POMODORO FOCUS TIMER MODAL              -->
+    <!-- =============================================================== -->
+    <div id="timer-modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-xs hidden transition-opacity" role="dialog" aria-modal="true" aria-labelledby="timer-modal-title">
+      <div class="relative w-full max-w-lg bg-[#FAF7F2] rounded-2xl shadow-2xl border border-[#E4DDD2] overflow-hidden text-[#2C221E]">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-[#E8E0D5] flex items-center justify-between bg-[#F4EFE6]/80">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-[#2C221E] text-white flex items-center justify-center shadow-xs">
+              <svg class="w-4 h-4 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <div>
+              <h3 id="timer-modal-title" class="font-serif text-lg font-bold text-[#2C221E] leading-tight">
+                25-Minute Pomodoro Focus Timer
+              </h3>
+              <p class="text-xs text-[#7A6E67]">
+                Minimalist reading countdown to help students read without distraction
+              </p>
+            </div>
+          </div>
+
+          <button id="close-timer-btn" class="p-1.5 rounded-lg text-[#7A6E67] hover:text-[#2C221E] hover:bg-[#EAE2D7]" aria-label="Close timer modal">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 sm:p-8 space-y-6 text-center">
+          
+          <div class="text-xs font-semibold uppercase tracking-wider text-[#5C7C65]" id="timer-status-text">
+            Pomodoro Focus Sprint
+          </div>
+
+          <!-- Large Minimalist Countdown Display -->
+          <div id="modal-timer-digits" class="font-mono text-6xl sm:text-7xl font-light tracking-tight text-[#2C221E] my-2">
+            25:00
+          </div>
+
+          <!-- Visual Progress Bar in Muted Sage -->
+          <div class="w-full max-w-xs mx-auto h-2 bg-[#EFE8DE] rounded-full overflow-hidden">
+            <div id="modal-timer-progress-bar" class="h-full bg-[#5C7C65] transition-all duration-500" style="width: 0%;"></div>
+          </div>
+
+          <!-- Presets -->
+          <div class="flex items-center justify-center gap-2 text-xs font-medium">
+            <button id="preset-25m" class="px-3.5 py-1.5 rounded-lg bg-[#5C7C65] text-white shadow-2xs font-semibold">
+              25m Focus Sprint
+            </button>
+            <button id="preset-5m" class="px-3.5 py-1.5 rounded-lg bg-[#F2ECE3] text-[#554942] hover:bg-[#EAE2D7] transition-colors">
+              5m Rest Break
+            </button>
+          </div>
+
+          <!-- Action Controls -->
+          <div class="flex items-center justify-center gap-3 pt-2">
+            <button 
+              id="modal-timer-toggle-btn" 
+              class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#5C7C65] text-white hover:bg-[#4E6A56] active:bg-[#435B4A] transition-all text-xs font-semibold shadow-xs"
+            >
+              <svg id="timer-play-icon" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              <svg id="timer-pause-icon" class="w-4 h-4 hidden fill-current" viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
+              </svg>
+              <span id="timer-btn-label">Start Sprint</span>
+            </button>
+
+            <button 
+              id="modal-timer-reset-btn"
+              class="p-2.5 rounded-xl border border-[#DDD4C9] text-[#554942] hover:bg-[#F2ECE3] transition-colors"
+              title="Reset countdown"
+              aria-label="Reset timer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M3 2v6h6"></path>
+                <path d="M21 12A9 9 0 0 0 6 5.3L3 8"></path>
+                <path d="M21 22v-6h-6"></path>
+                <path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="text-[11px] text-[#7A6E67] pt-2">
+            The timer continues counting in the sticky header even when this modal is closed.
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- 6. DISTRACTION-FREE READER MODAL                                -->
+    <!-- =============================================================== -->
+    <div id="reader-modal-backdrop" class="fixed inset-0 z-50 bg-[#FAF7F2] overflow-y-auto hidden" role="dialog" aria-modal="true">
+      <div class="max-w-3xl mx-auto px-6 py-12 space-y-8">
+        
+        <!-- Reader Navigation -->
+        <div class="flex items-center justify-between border-b border-[#E8E0D5] pb-4">
+          <button id="close-reader-btn" class="flex items-center gap-1.5 text-xs font-semibold text-[#5C7C65] hover:text-[#4E6A56]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Catalog</span>
+          </button>
+
+          <span id="reader-meta" class="text-xs text-[#7A6E67] font-sans"></span>
+        </div>
+
+        <!-- Reader Header -->
+        <div class="text-center space-y-2 border-b border-[#E8E0D5] pb-6">
+          <h2 id="reader-title" class="font-serif text-3xl font-bold text-[#2C221E]"></h2>
+          <div id="reader-author" class="text-sm text-[#665A53]"></div>
+        </div>
+
+        <!-- Reader Text -->
+        <article id="reader-content" class="font-serif text-base sm:text-lg leading-relaxed space-y-6 text-[#2C221E]">
+          <!-- Injected via JS -->
+        </article>
+
+        <!-- Reader Footer -->
+        <div class="pt-8 border-t border-[#E8E0D5] flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button 
+            id="reader-done-btn" 
+            class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#5C7C65] text-white hover:bg-[#4E6A56] active:bg-[#435B4A] text-xs font-semibold shadow-2xs transition-all"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span id="reader-done-label">Finished Reading Passage</span>
+          </button>
+          
+          <button 
+            id="reader-close-action-btn" 
+            class="px-5 py-2.5 rounded-xl border border-[#DDD4C9] text-[#554942] hover:bg-[#F2ECE3] text-xs font-medium transition-colors"
+          >
+            Return to Library
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Toast Notification for Reading Milestones -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-3">
+      <div class="px-4 py-3 rounded-xl bg-[#2C221E] text-white shadow-xl text-xs flex items-center gap-2.5 border border-[#43352F]">
+        <svg class="w-4 h-4 text-[#7BB388]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span id="toast-message" class="font-medium"></span>
+      </div>
+    </div>
+
+    <!-- =============================================================== -->
+    <!-- 7. COMPLETE VANILLA JAVASCRIPT LOGIC                             -->
+    <!-- =============================================================== -->
+    <script>
+      (function() {
+        'use strict';
+
+        // -------------------------------------------------------------
+        // A. DATA: 6 CURATED SEMINAL TEXTS
+        // -------------------------------------------------------------
+        const BOOKS_DATA = [
+          {
+            id: 'attention-james',
+            title: 'On Attention & The Stream of Consciousness',
+            author: 'William James',
+            discipline: 'Cognitive Science',
+            year: '1890',
+            estimatedMinutes: 18,
+            wordCount: '3,950',
+            abstract: 'A foundational treatise on attention from The Principles of Psychology. James explains how conscious voluntary selection acts as a mental lens, shaping student memory and scholarship.',
+            whyRead: 'Essential reading for understanding why multitasking fragments working memory and how deliberate focus creates intellectual mastery.',
+            content: [
+              'Everyone knows what attention is. It is the taking possession by the mind, in clear and vivid form, of one out of what seem several simultaneously possible objects or trains of thought.',
+              'Focalization, concentration, of consciousness are of its essence. It implies withdrawal from some things in order to deal effectively with others, and is a condition which has a real opposite in the confused, dazed, scatterbrained state which in French is called distraction.',
+              'My experience is what I agree to attend to. Only those items which I notice shape my mind—without selective interest, experience is an utter chaos. Interest alone gives accent and emphasis, light and shade, background and foreground.',
+              'In university study, we observe that the difference between an acute intellect and a mediocre mind is rarely sheer intellectual capacity; it is almost invariably the power of holding the mind to an uninteresting or difficult subject until interest begins to blossom organically from the material itself.'
+            ]
+          },
+          {
+            id: 'meditations-aurelius',
+            title: 'Meditations: On Tranquility & Inner Sovereignty',
+            author: 'Marcus Aurelius',
+            discipline: 'Philosophy & Ethics',
+            year: '175 CE',
+            estimatedMinutes: 15,
+            wordCount: '3,100',
+            abstract: 'Personal reflections composed by Marcus Aurelius on emotional composure, rational self-mastery, overcoming sensory distractions, and protecting mental peace.',
+            whyRead: 'A masterclass in mental minimalism. Provides timeless wisdom for students navigating academic pressure and digital noise.',
+            content: [
+              'People look for retreats for themselves, in the country, by the coast, or in the hills. There is nowhere that a person can find a more peaceful and trouble-free retreat than in his own mind.',
+              'Especially if he has within himself the kind of thoughts that he can dip into at any moment and immediately find himself in total ease. And by ease, I mean nothing other than good order.',
+              'Remember: you have power over your mind, not outside events. Realize this, and you will find your strength.',
+              'Discard your misperceptions; stop being pulled by the strings of desire; circumscribe time; recognize what is happening to you; keep the hour of your death before your eyes.'
+            ]
+          },
+          {
+            id: 'woolf-narrow-bridge',
+            title: 'The Narrow Bridge of Art & Modern Reading',
+            author: 'Virginia Woolf',
+            discipline: 'Literature & Craft',
+            year: '1927',
+            estimatedMinutes: 16,
+            wordCount: '3,400',
+            abstract: 'Woolf considers deep interior reading and how modern students must read attentively to apprehend the subtle, poetic textures of prose.',
+            whyRead: 'Teaches students how to slow down reading speed to absorb prose cadence and tonal shifts rather than skimming for surface bullet points.',
+            content: [
+              'If we try to formulate our need, it is that we want a form of prose that will express our modern feelings without falsifying them with old melodramas.',
+              'When we read with hurried haste, we strip prose of its music. We treat books like railway timetables, looking merely for the departure time of a plot point or the arrival of a factual conclusion.',
+              'To read a book as it should be read requires the rarest and most difficult qualities of imagination, detachment, and silence.',
+              'Do not dictate to your author; try to become him. Be his fellow-worker and his accomplice.'
+            ]
+          },
+          {
+            id: 'thoreau-walden',
+            title: 'Where I Lived, and What I Lived For',
+            author: 'Henry David Thoreau',
+            discipline: 'Environmental Philosophy',
+            year: '1854',
+            estimatedMinutes: 20,
+            wordCount: '4,100',
+            abstract: 'A classic meditation on simplicity, deliberate living, and stripping away artificial social busyness to discover the essential facts of existence.',
+            whyRead: 'Directly addresses student burnout, screen fatigue, and the illusion of urgency by advocating for radical intellectual simplicity.',
+            content: [
+              'I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach.',
+              'Our life is frittered away by detail. An honest man has hardly need to count more than his ten fingers, or in extreme cases he may add his ten toes, and lump the rest.',
+              'Simplicity, simplicity, simplicity! I say, let your affairs be as two or three, and not a hundred or a thousand.',
+              'Time is but the stream I go a-fishing in. I drink at it; but while I drink I see the sandy bottom and detect how shallow it is. Its thin current slides away, but eternity remains.'
+            ]
+          },
+          {
+            id: 'lovelace-engine',
+            title: 'Sketch of the Analytical Engine & Symbolism',
+            author: 'Ada Lovelace & L.F. Menabrea',
+            discipline: 'Computing History',
+            year: '1843',
+            estimatedMinutes: 22,
+            wordCount: '4,300',
+            abstract: 'Pioneering notes on Charles Babbage\'s Analytical Engine, establishing the conceptual bridge from mechanical arithmetic to symbolic computation.',
+            whyRead: 'Demonstrates the power of interdisciplinary synthesis—connecting mathematical rigor with poetic imagination to envision modern algorithms.',
+            content: [
+              'The Analytical Engine does not occupy common ground with mere calculating machines. It holds a position wholly its own.',
+              'We may say most aptly that the Analytical Engine weaves algebraical patterns just as the Jacquard-loom weaves flowers and leaves.',
+              'The engine might act upon other things besides number, were objects found whose mutual fundamental relations could be expressed by those of the abstract science of operations.',
+              'The intellectual scholar must neither ascribe magical autonomy to mechanism, nor dismiss the profound labor saved when mechanical operations are properly delegated.'
+            ]
+          },
+          {
+            id: 'dewey-experience',
+            title: 'Experience, Reflection & The Nature of Thinking',
+            author: 'John Dewey',
+            discipline: 'Education Theory',
+            year: '1916',
+            estimatedMinutes: 17,
+            wordCount: '3,600',
+            abstract: 'Dewey explains why passive information cramming fails to educate, and how true intellectual growth happens only through reflective digestion.',
+            whyRead: 'Explains why simply memorizing slides produces fleeting retention, whereas quiet reflective reading builds lasting mental models.',
+            content: [
+              'Thinking is the intentional endeavor to discover specific connections between something which we do and the consequences which result.',
+              'Information severed from thoughtful reflection will always be dead luggage in the student’s mind.',
+              'Knowledge is not a stockpile of grain deposited in an empty barn. It is the working tool of an active craftsman who knows when and how to apply each chisel to the wood.',
+              'Digital libraries that merely pile millions of unread tomes before the student do not create wisdom; they produce an anxiety of abundance. What the learner requires is a quiet space to digest and test what is read.'
+            ]
+          }
+        ];
+
+        // -------------------------------------------------------------
+        // B. DATA: 3 CYCLING QUOTES ABOUT LEARNING
+        // -------------------------------------------------------------
+        const QUOTES_DATA = [
+          {
+            id: 0,
+            text: 'My experience is what I agree to attend to. Only those items which I notice shape my mind—without selective interest, experience is an utter chaos.',
+            author: 'William James',
+            work: 'The Principles of Psychology (1890)',
+            discipline: 'Cognitive Science'
+          },
+          {
+            id: 1,
+            text: 'To read a book as it should be read requires the rarest and most difficult qualities of imagination, detachment, and silence.',
+            author: 'Virginia Woolf',
+            work: 'The Common Reader',
+            discipline: 'Literature & Craft'
+          },
+          {
+            id: 2,
+            text: 'You have power over your mind—not outside events. Realize this in your daily study, and you will find unwavering strength.',
+            author: 'Marcus Aurelius',
+            work: 'Meditations (IV.3)',
+            discipline: 'Philosophy & Ethics'
+          }
+        ];
+
+        // -------------------------------------------------------------
+        // C. LOCALSTORAGE BOOKSHELF & READING HISTORY STATE MANAGEMENT
+        // -------------------------------------------------------------
+        const STORAGE_KEY = 'lumina_saved_bookshelf';
+        const READ_STORAGE_KEY = 'lumina_read_books';
+
+        function getSavedBookshelf() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return ['attention-james'];
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return ['attention-james'];
+            return Array.from(new Set(parsed.filter(id => typeof id === 'string')));
+          } catch (e) {
+            console.warn('Corrupted localStorage bookshelf detected, resetting to default.', e);
+            return ['attention-james'];
+          }
+        }
+
+        function saveBookshelf(ids) {
+          try {
+            const unique = Array.from(new Set(ids));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
+          } catch (e) {
+            console.error('Failed to save bookshelf to localStorage', e);
+          }
+        }
+
+        function getReadBookshelf() {
+          try {
+            const raw = localStorage.getItem(READ_STORAGE_KEY);
+            // Default seed with 1 completed seminal text to immediately demonstrate the Reading History section
+            if (!raw) return ['meditations-aurelius'];
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return ['meditations-aurelius'];
+            return Array.from(new Set(parsed.filter(id => typeof id === 'string')));
+          } catch (e) {
+            console.warn('Corrupted localStorage reading history, resetting.', e);
+            return ['meditations-aurelius'];
+          }
+        }
+
+        function saveReadBookshelf(ids) {
+          try {
+            const unique = Array.from(new Set(ids));
+            localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(unique));
+          } catch (e) {
+            console.error('Failed to save read books to localStorage', e);
+          }
+        }
+
+        let savedBooks = getSavedBookshelf();
+        let readBookIds = getReadBookshelf();
+        let drawerActiveTab = 'saved'; // 'saved' | 'history'
+        let currentReadingBookId = null;
+        let toastTimeout = null;
+
+        function showToastNotification(message) {
+          const toast = document.getElementById('toast-notification');
+          const msgEl = document.getElementById('toast-message');
+          if (!toast || !msgEl) return;
+          msgEl.textContent = message;
+          toast.classList.remove('opacity-0', 'translate-y-3');
+          toast.classList.add('opacity-100', 'translate-y-0');
+          if (toastTimeout) clearTimeout(toastTimeout);
+          toastTimeout = setTimeout(() => {
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            toast.classList.add('opacity-0', 'translate-y-3');
+          }, 3200);
+        }
+
+        function setDrawerTab(tab) {
+          drawerActiveTab = tab;
+          const savedTabBtn = document.getElementById('tab-saved-books');
+          const historyTabBtn = document.getElementById('tab-reading-history');
+          const clearBtn = document.getElementById('clear-bookshelf-btn');
+
+          if (tab === 'saved') {
+            savedTabBtn.className = 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#5C7C65] text-white shadow-2xs transition-all';
+            savedTabBtn.setAttribute('aria-selected', 'true');
+            historyTabBtn.className = 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg text-[#554942] hover:bg-[#EAE2D7] transition-all';
+            historyTabBtn.setAttribute('aria-selected', 'false');
+            if (clearBtn) clearBtn.textContent = 'Clear Saved Queue';
+          } else {
+            historyTabBtn.className = 'flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#5C7C65] text-white shadow-2xs transition-all';
+            historyTabBtn.setAttribute('aria-selected', 'true');
+            savedTabBtn.className = 'flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg text-[#554942] hover:bg-[#EAE2D7] transition-all';
+            savedTabBtn.setAttribute('aria-selected', 'false');
+            if (clearBtn) clearBtn.textContent = 'Clear Reading History';
+          }
+
+          updateBookshelfCounterUI();
+          renderBookshelfDrawerList();
+        }
+
+        function toggleBookFinished(bookId) {
+          if (!bookId) return;
+          const current = getReadBookshelf();
+          const exists = current.includes(bookId);
+          const book = BOOKS_DATA.find(b => b.id === bookId);
+          const title = book ? book.title : 'Text';
+
+          if (exists) {
+            readBookIds = current.filter(id => id !== bookId);
+            showToastNotification(`Removed "${title}" from Reading History.`);
+          } else {
+            readBookIds = [...current, bookId];
+            showToastNotification(`Marked "${title}" as finished in Reading History!`);
+          }
+
+          saveReadBookshelf(readBookIds);
+          updateBookshelfCounterUI();
+          renderBookshelfDrawerList();
+          renderBooksGrid();
+        }
+
+        function updateBookshelfCounterUI() {
+          const count = savedBooks.length;
+          const readCount = readBookIds.length;
+          const badge = document.getElementById('bookshelf-count-badge');
+          const navbarBtn = document.getElementById('navbar-bookshelf-btn');
+          const icon = document.getElementById('navbar-bookmark-icon');
+          const subtitle = document.getElementById('drawer-subtitle');
+          const tabSavedCount = document.getElementById('tab-saved-count');
+          const tabHistoryCount = document.getElementById('tab-history-count');
+
+          if (badge) {
+            badge.textContent = count;
+            if (count > 0) {
+              badge.className = 'px-1.5 py-0.2 rounded-full font-mono text-[11px] font-bold bg-[#5C7C65] text-white';
+              navbarBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B] shadow-2xs transition-all';
+              icon.setAttribute('fill', '#5C7C65');
+              icon.setAttribute('stroke', '#5C7C65');
+            } else {
+              badge.className = 'px-1.5 py-0.2 rounded-full font-mono text-[11px] font-semibold bg-[#EAE2D7] text-[#554942]';
+              navbarBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E4DDD2] bg-white/80 hover:bg-white text-[#554942] transition-all shadow-2xs';
+              icon.setAttribute('fill', 'none');
+              icon.setAttribute('stroke', 'currentColor');
+            }
+          }
+
+          if (tabSavedCount) tabSavedCount.textContent = count;
+          if (tabHistoryCount) tabHistoryCount.textContent = readCount;
+
+          if (subtitle) {
+            if (drawerActiveTab === 'saved') {
+              subtitle.textContent = `${count} ${count === 1 ? 'text' : 'texts'} in your active study queue · Stored in localStorage`;
+            } else {
+              subtitle.textContent = `${readCount} ${readCount === 1 ? 'text' : 'texts'} finished · Tracking scholarship milestones`;
+            }
+          }
+
+          // Update each button in the grid
+          BOOKS_DATA.forEach(book => {
+            const btn = document.getElementById(`save-btn-${book.id}`);
+            if (btn) {
+              const isSaved = savedBooks.includes(book.id);
+              if (isSaved) {
+                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B] shadow-2xs transition-all';
+                btn.innerHTML = `
+                  <svg class="w-3.5 h-3.5 text-[#5C7C65] fill-[#5C7C65]" viewBox="0 0 24 24">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>Saved to Bookshelf</span>
+                `;
+              } else {
+                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#DDD4C9] bg-white text-[#554942] hover:bg-[#F8F4EE] hover:text-[#1F1815] transition-all';
+                btn.innerHTML = `
+                  <svg class="w-3.5 h-3.5 text-[#7A6E67]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                  <span>Save to Bookshelf</span>
+                `;
+              }
+            }
+          });
+        }
+
+        /**
+         * FIX FOR BUG #2: Duplicate Book Save Prevention
+         * Checks if the book ID already exists in the localStorage array before adding it.
+         * If already present, toggles removal (or prevents duplicate); if not present, adds it.
+         * Guarantees that the navbar counter can never be artificially inflated.
+         */
+        function toggleBookInBookshelf(bookId) {
+          const currentShelf = getSavedBookshelf();
+          const alreadyExists = currentShelf.includes(bookId);
+          const book = BOOKS_DATA.find(b => b.id === bookId);
+          const title = book ? book.title : 'Text';
+
+          if (alreadyExists) {
+            savedBooks = currentShelf.filter(id => id !== bookId);
+            showToastNotification(`Removed "${title}" from Saved Queue.`);
+          } else {
+            savedBooks = [...currentShelf, bookId];
+            showToastNotification(`Saved "${title}" to your Bookshelf.`);
+          }
+
+          saveBookshelf(savedBooks);
+          updateBookshelfCounterUI();
+          renderBookshelfDrawerList();
+        }
+
+        // -------------------------------------------------------------
+        // D. RENDER THE 6 CURATED BOOKS IN THE RESPONSIVE 3-COL GRID
+        // -------------------------------------------------------------
+        function renderBooksGrid() {
+          const container = document.getElementById('books-grid');
+          if (!container) return;
+
+          container.innerHTML = BOOKS_DATA.map(book => {
+            const isSaved = savedBooks.includes(book.id);
+            const isFinished = readBookIds.includes(book.id);
+
+            return `
+              <article class="p-6 rounded-2xl bg-white border border-[#E6E0D5] hover:border-[#CFBFA8] shadow-2xs hover:shadow-xs transition-all flex flex-col justify-between group">
+                <div class="space-y-3">
+                  
+                  <!-- Unboxed Metadata (NO PILLS) with typographic separators & Finished status -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-[#7A6E67]">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-medium text-[#524B45]">${book.discipline}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>${book.year}</span>
+                      <span aria-hidden="true">·</span>
+                      <span class="flex items-center gap-1 text-[#61584F]">
+                        <svg class="w-3 h-3 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        ${book.estimatedMinutes} min read
+                      </span>
+                    </div>
+
+                    ${isFinished ? `
+                      <span class="flex items-center gap-1 text-[11px] font-semibold text-[#24422B] bg-[#EEF4F0] px-2 py-0.5 rounded-md border border-[#BCD4C3]">
+                        <svg class="w-3 h-3 text-[#5C7C65] fill-current" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Finished
+                      </span>
+                    ` : ''}
+                  </div>
+
+                  <!-- Book Title & Author -->
+                  <div>
+                    <h3 class="font-serif text-xl font-bold text-[#2C221E] group-hover:text-[#5C7C65] transition-colors leading-snug">
+                      ${book.title}
+                    </h3>
+                    <div class="text-xs text-[#524B45] mt-1 font-sans">
+                      By <span class="font-semibold text-[#2C221E]">${book.author}</span>
+                    </div>
+                  </div>
+
+                  <!-- Abstract -->
+                  <p class="text-xs text-[#5C504A] leading-relaxed line-clamp-3">
+                    ${book.abstract}
+                  </p>
+
+                  <!-- Pedagogical Quote -->
+                  <div class="p-3 rounded-xl bg-[#FAF7F2] border border-[#ECE5DA] text-xs text-[#6B5E57] italic">
+                    "${book.whyRead}"
+                  </div>
+
+                </div>
+
+                <!-- Instant Save Button & Read Action -->
+                <div class="pt-5 mt-4 border-t border-[#F2ECE1] flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5">
+                    <button 
+                      id="save-btn-${book.id}"
+                      data-book-id="${book.id}"
+                      class="${isSaved 
+                        ? 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B] shadow-2xs transition-all'
+                        : 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#DDD4C9] bg-white text-[#554942] hover:bg-[#F8F4EE] hover:text-[#1F1815] transition-all'
+                      }"
+                      title="${isSaved ? 'Remove from bookshelf' : 'Save to personal bookshelf'}"
+                      aria-label="${isSaved ? 'Saved to bookshelf' : 'Save to bookshelf'}"
+                    >
+                      ${isSaved ? `
+                        <svg class="w-3.5 h-3.5 text-[#5C7C65] fill-[#5C7C65]" viewBox="0 0 24 24">
+                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Saved</span>
+                      ` : `
+                        <svg class="w-3.5 h-3.5 text-[#7A6E67]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                        <span>Save to Bookshelf</span>
+                      `}
+                    </button>
+
+                    <!-- Toggle Finished Status -->
+                    <button
+                      data-toggle-finished-id="${book.id}"
+                      class="p-1.5 rounded-lg border ${isFinished 
+                        ? 'border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B]' 
+                        : 'border-[#DDD4C9] text-[#7A6E67] hover:bg-[#F8F4EE] hover:text-[#2C221E]'} transition-colors"
+                      title="${isFinished ? 'Remove from Reading History' : 'Mark as finished in Reading History'}"
+                      aria-label="${isFinished ? 'Finished text' : 'Mark as finished'}"
+                    >
+                      <svg class="w-3.5 h-3.5 ${isFinished ? 'fill-[#5C7C65] text-[#5C7C65]' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <button 
+                    data-read-id="${book.id}"
+                    class="read-text-trigger flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#5C7C65] text-white hover:bg-[#4E6A56] active:bg-[#435B4A] transition-colors shadow-2xs"
+                  >
+                    <span>Read Text</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </button>
+                </div>
+
+              </article>
+            `;
+          }).join('');
+
+          // Bind click listeners for instant save
+          container.querySelectorAll('[data-book-id]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+              const bookId = this.getAttribute('data-book-id');
+              toggleBookInBookshelf(bookId);
+            });
+          });
+
+          // Bind click listeners for quick finished toggle
+          container.querySelectorAll('[data-toggle-finished-id]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+              const bookId = this.getAttribute('data-toggle-finished-id');
+              toggleBookFinished(bookId);
+            });
+          });
+
+          // Bind click listeners for reading
+          container.querySelectorAll('.read-text-trigger').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const bookId = this.getAttribute('data-read-id');
+              openReaderModal(bookId);
+            });
+          });
+        }
+
+        // -------------------------------------------------------------
+        // E. BOOKSHELF DRAWER LIST & READING HISTORY RENDERING
+        // -------------------------------------------------------------
+        function renderBookshelfDrawerList() {
+          const listContainer = document.getElementById('drawer-books-list');
+          if (!listContainer) return;
+
+          // ==========================================
+          // TAB 1: SAVED QUEUE (savedBooks)
+          // ==========================================
+          if (drawerActiveTab === 'saved') {
+            const savedItems = BOOKS_DATA.filter(b => savedBooks.includes(b.id));
+
+            if (savedItems.length === 0) {
+              listContainer.innerHTML = `
+                <div class="text-center py-16 px-4 space-y-3">
+                  <div class="w-12 h-12 rounded-full bg-[#EFE9DF] text-[#5C7C65] flex items-center justify-center mx-auto">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h4 class="font-serif text-base font-bold text-[#2C221E]">Your saved queue is empty</h4>
+                  <p class="text-xs text-[#6B5E57] max-w-xs mx-auto">
+                    Click <strong>"Save to Bookshelf"</strong> on any text in the catalog to assemble your study list.
+                  </p>
+                  ${readBookIds.length > 0 ? `
+                    <div class="pt-2">
+                      <button id="drawer-view-history-shortcut" class="px-3.5 py-1.5 rounded-lg border border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B] text-xs font-semibold hover:bg-[#E3EEE6] transition-colors">
+                        View Reading History (${readBookIds.length} Finished) →
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+
+              const shortcut = document.getElementById('drawer-view-history-shortcut');
+              if (shortcut) {
+                shortcut.addEventListener('click', () => setDrawerTab('history'));
+              }
+              return;
+            }
+
+            listContainer.innerHTML = `
+              <div class="space-y-3">
+                ${savedItems.map(book => {
+                  const isFinished = readBookIds.includes(book.id);
+
+                  return `
+                    <article class="p-4 rounded-xl bg-white border border-[#EAE4D9] shadow-2xs flex flex-col justify-between space-y-3">
+                      <div>
+                        <div class="flex items-center justify-between text-[11px] mb-1">
+                          <span class="text-[#7A6E67] font-medium">${book.discipline} · ${book.estimatedMinutes} min read</span>
+                          ${isFinished ? `
+                            <span class="flex items-center gap-1 font-semibold text-[#24422B] bg-[#EEF4F0] px-2 py-0.5 rounded-md">
+                              <svg class="w-3 h-3 text-[#5C7C65] fill-current" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                              </svg>
+                              Finished
+                            </span>
+                          ` : ''}
+                        </div>
+                        <h5 class="font-serif text-base font-bold text-[#2C221E] leading-snug">
+                          ${book.title}
+                        </h5>
+                        <p class="text-xs text-[#524B45] mt-0.5 font-sans">
+                          By ${book.author}
+                        </p>
+                      </div>
+
+                      <div class="pt-2 border-t border-[#F2ECE1] flex items-center justify-between">
+                        <button 
+                          data-remove-id="${book.id}"
+                          class="drawer-remove-btn text-xs text-[#8A8177] hover:text-[#9B3B3B] flex items-center gap-1 transition-colors"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                          <span>Remove</span>
+                        </button>
+
+                        <div class="flex items-center gap-2">
+                          <button 
+                            data-drawer-finish-id="${book.id}"
+                            class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border ${isFinished 
+                              ? 'border-[#BCD4C3] bg-[#EEF4F0] text-[#24422B]' 
+                              : 'border-[#DDD4C9] text-[#554942] hover:bg-[#F8F4EE]'} transition-colors"
+                            title="${isFinished ? 'Completed text' : 'Mark finished'}"
+                          >
+                            <svg class="w-3.5 h-3.5 ${isFinished ? 'fill-[#5C7C65] text-[#5C7C65]' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>${isFinished ? 'Finished' : 'Mark Read'}</span>
+                          </button>
+
+                          <button 
+                            data-drawer-read-id="${book.id}"
+                            class="drawer-read-btn flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#5C7C65] text-white hover:bg-[#4E6A56] transition-colors shadow-2xs"
+                          >
+                            <span>Read Now</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                              <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  `;
+                }).join('')}
+
+                <!-- Scholarship Progress Banner linking to Reading History -->
+                <div class="p-3.5 rounded-xl bg-[#F4EFE6] border border-[#E8E0D5] flex items-center justify-between text-xs text-[#524B45]">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-[#5C7C65]"></span>
+                    <span>Completed <strong>${readBookIds.length}</strong> of ${BOOKS_DATA.length} seminal works</span>
+                  </div>
+                  <button id="drawer-switch-history-link" class="text-[#5C7C65] font-semibold hover:underline">
+                    View History →
+                  </button>
+                </div>
+              </div>
+            `;
+
+            listContainer.querySelectorAll('[data-remove-id]').forEach(btn => {
+              btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-remove-id');
+                toggleBookInBookshelf(id);
+              });
+            });
+
+            listContainer.querySelectorAll('[data-drawer-finish-id]').forEach(btn => {
+              btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-drawer-finish-id');
+                toggleBookFinished(id);
+              });
+            });
+
+            listContainer.querySelectorAll('[data-drawer-read-id]').forEach(btn => {
+              btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-drawer-read-id');
+                closeBookshelfDrawer();
+                openReaderModal(id);
+              });
+            });
+
+            const switchLink = document.getElementById('drawer-switch-history-link');
+            if (switchLink) {
+              switchLink.addEventListener('click', () => setDrawerTab('history'));
+            }
+            return;
+          }
+
+          // ==========================================
+          // TAB 2: READING HISTORY (readBookIds)
+          // ==========================================
+          const readItems = BOOKS_DATA.filter(b => readBookIds.includes(b.id));
+          const totalReadMinutes = readItems.reduce((acc, b) => acc + b.estimatedMinutes, 0);
+          const completionPercentage = Math.round((readItems.length / BOOKS_DATA.length) * 100);
+
+          if (readItems.length === 0) {
+            listContainer.innerHTML = `
+              <div class="text-center py-16 px-4 space-y-3">
+                <div class="w-12 h-12 rounded-full bg-[#EFE9DF] text-[#5C7C65] flex items-center justify-center mx-auto">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 class="font-serif text-base font-bold text-[#2C221E]">No reading history recorded yet</h4>
+                <p class="text-xs text-[#6B5E57] max-w-xs mx-auto">
+                  When you read a passage and click <strong>"Finished Reading Passage"</strong>, your scholarly achievements are saved here.
+                </p>
+                <div class="pt-2">
+                  <button id="history-explore-catalog-btn" class="px-4 py-2 rounded-lg bg-[#5C7C65] text-white text-xs font-semibold hover:bg-[#4E6A56] transition-colors shadow-2xs">
+                    Browse Curated Catalog
+                  </button>
+                </div>
+              </div>
+            `;
+
+            const exploreBtn = document.getElementById('history-explore-catalog-btn');
+            if (exploreBtn) {
+              exploreBtn.addEventListener('click', () => {
+                closeBookshelfDrawer();
+                const catalogEl = document.getElementById('catalog');
+                if (catalogEl) catalogEl.scrollIntoView({ behavior: 'smooth' });
+              });
+            }
+            return;
+          }
+
+          // Render Reading History List pulling from readBookIds
+          listContainer.innerHTML = `
+            <div class="space-y-4">
+              
+              <!-- Reading Milestones Progress Card -->
+              <div class="p-4 rounded-xl bg-white border border-[#E6E0D5] space-y-2.5 shadow-2xs">
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-1.5 font-semibold text-[#2C221E]">
+                    <svg class="w-4 h-4 text-[#5C7C65]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Reading Milestones</span>
+                  </div>
+                  <span class="font-mono text-[#5C7C65] font-bold">
+                    ${readItems.length} of ${BOOKS_DATA.length} Complete (${completionPercentage}%)
+                  </span>
+                </div>
+
+                <!-- Visual Progress Bar in Sage -->
+                <div class="w-full h-2 bg-[#EFE8DE] rounded-full overflow-hidden">
+                  <div class="h-full bg-[#5C7C65] rounded-full transition-all duration-500" style="width: ${completionPercentage}%"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] text-[#7A6E67] pt-0.5">
+                  <span>Total Reading Time: <strong class="text-[#2C221E]">${totalReadMinutes} min</strong></span>
+                  <span>Scholarly Texts: <strong class="text-[#2C221E]">${readItems.length} finished</strong></span>
+                </div>
+              </div>
+
+              <!-- List of Finished Books pulling from readBookIds -->
+              <div class="space-y-3">
+                <div class="text-[11px] uppercase tracking-wider text-[#7A6E67] font-semibold px-1">
+                  Finished Academic Works (${readItems.length})
+                </div>
+
+                ${readItems.map(book => {
+                  const isSaved = savedBooks.includes(book.id);
+
+                  return `
+                    <article class="p-4 rounded-xl bg-white border border-[#EAE4D9] shadow-2xs flex flex-col justify-between space-y-3">
+                      <div>
+                        <div class="flex items-center justify-between text-[11px] mb-1">
+                          <span class="text-[#7A6E67] font-medium">${book.discipline} · ${book.estimatedMinutes} min read</span>
+                          <span class="flex items-center gap-1 font-semibold text-[#24422B] bg-[#EEF4F0] px-2 py-0.5 rounded-md border border-[#BCD4C3]">
+                            <svg class="w-3 h-3 text-[#5C7C65] fill-current" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Finished
+                          </span>
+                        </div>
+                        <h5 class="font-serif text-base font-bold text-[#2C221E] leading-snug">
+                          ${book.title}
+                        </h5>
+                        <p class="text-xs text-[#524B45] mt-0.5 font-sans">
+                          By ${book.author} (${book.year})
+                        </p>
+                      </div>
+
+                      <div class="pt-2 border-t border-[#F2ECE1] flex items-center justify-between text-xs">
+                        <button 
+                          data-history-remove-id="${book.id}"
+                          class="text-xs text-[#8A8177] hover:text-[#9B3B3B] flex items-center gap-1 transition-colors"
+                          title="Remove text from reading history"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                          <span>Remove</span>
+                        </button>
+
+                        <div class="flex items-center gap-2">
+                          ${!isSaved ? `
+                            <button 
+                              data-history-add-saved-id="${book.id}"
+                              class="px-2.5 py-1.5 rounded-lg border border-[#DDD4C9] text-[#554942] hover:bg-[#F2ECE3] text-xs font-medium transition-colors"
+                              title="Add back to saved study queue"
+                            >
+                              + Save Queue
+                            </button>
+                          ` : ''}
+
+                          <button 
+                            data-history-read-id="${book.id}"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#5C7C65] text-white hover:bg-[#4E6A56] transition-colors shadow-2xs"
+                          >
+                            <span>Re-read</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                              <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  `;
+                }).join('')}
+              </div>
+
+            </div>
+          `;
+
+          // Bind listeners for Reading History section
+          listContainer.querySelectorAll('[data-history-remove-id]').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-history-remove-id');
+              toggleBookFinished(id);
+            });
+          });
+
+          listContainer.querySelectorAll('[data-history-add-saved-id]').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-history-add-saved-id');
+              toggleBookInBookshelf(id);
+            });
+          });
+
+          listContainer.querySelectorAll('[data-history-read-id]').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const id = this.getAttribute('data-history-read-id');
+              closeBookshelfDrawer();
+              openReaderModal(id);
+            });
+          });
+        }
+
+        function openBookshelfDrawer() {
+          renderBookshelfDrawerList();
+          document.getElementById('bookshelf-drawer-backdrop').classList.remove('hidden');
+        }
+
+        function closeBookshelfDrawer() {
+          document.getElementById('bookshelf-drawer-backdrop').classList.add('hidden');
+        }
+
+        // -------------------------------------------------------------
+        // F. DYNAMIC HERO SECTION: 3 CYCLING QUOTES
+        // -------------------------------------------------------------
+        let currentQuoteIdx = 0;
+        let quoteInterval = null;
+        let isQuoteCyclingActive = true;
+
+        function updateQuoteUI(idx) {
+          currentQuoteIdx = idx;
+          const q = QUOTES_DATA[idx];
+          const textEl = document.getElementById('quote-text');
+          const authorEl = document.getElementById('quote-author');
+          const workEl = document.getElementById('quote-work');
+          const discEl = document.getElementById('quote-discipline');
+          const countEl = document.getElementById('quote-counter');
+
+          if (textEl) {
+            textEl.style.opacity = '0';
+            setTimeout(() => {
+              textEl.textContent = `"${q.text}"`;
+              authorEl.textContent = q.author;
+              workEl.textContent = q.work;
+              discEl.textContent = q.discipline;
+              countEl.textContent = `${idx + 1} / ${QUOTES_DATA.length}`;
+              textEl.style.opacity = '1';
+            }, 150);
+          }
+
+          // Update indicator dots
+          document.querySelectorAll('.quote-dot').forEach((dot, dotIdx) => {
+            if (dotIdx === idx) {
+              dot.className = 'quote-dot h-1.5 w-5 bg-[#5C7C65] rounded-full transition-all';
+            } else {
+              dot.className = 'quote-dot h-1.5 w-1.5 bg-[#DDD4C9] rounded-full transition-all';
+            }
+          });
+        }
+
+        function nextQuote() {
+          const next = (currentQuoteIdx + 1) % QUOTES_DATA.length;
+          updateQuoteUI(next);
+        }
+
+        function prevQuote() {
+          const prev = (currentQuoteIdx - 1 + QUOTES_DATA.length) % QUOTES_DATA.length;
+          updateQuoteUI(prev);
+        }
+
+        function startQuoteAutoCycle() {
+          if (quoteInterval) clearInterval(quoteInterval);
+          quoteInterval = setInterval(nextQuote, 8000);
+        }
+
+        function stopQuoteAutoCycle() {
+          if (quoteInterval) clearInterval(quoteInterval);
+          quoteInterval = null;
+        }
+
+        // -------------------------------------------------------------
+        // G. MINIMALIST 25-MINUTE POMODORO FOCUS TIMER
+        // -------------------------------------------------------------
+        let totalTimerSeconds = 25 * 60; // 1500 seconds
+        let remainingTimerSeconds = 25 * 60;
+        let isTimerActive = false;
+        let timerInterval = null;
+
+        function formatTimeDigits(totalSecs) {
+          const m = Math.floor(totalSecs / 60);
+          const s = totalSecs % 60;
+          return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function playChimeAlert() {
+          try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+            osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3); // A5
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.2);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 1.2);
+          } catch (e) {
+            // Audio context not allowed without prior interaction
+          }
+        }
+
+        function updateTimerDisplays() {
+          const formatted = formatTimeDigits(remainingTimerSeconds);
+          const modalDigits = document.getElementById('modal-timer-digits');
+          const navDisplay = document.getElementById('navbar-timer-display');
+          const progressBar = document.getElementById('modal-timer-progress-bar');
+          const navBtn = document.getElementById('navbar-timer-btn');
+
+          if (modalDigits) modalDigits.textContent = formatted;
+          if (navDisplay) navDisplay.textContent = formatted;
+
+          const progressPercent = totalTimerSeconds > 0 
+            ? Math.round(((totalTimerSeconds - remainingTimerSeconds) / totalTimerSeconds) * 100)
+            : 0;
+          
+          if (progressBar) progressBar.style.width = `${progressPercent}%`;
+
+          if (navBtn) {
+            if (isTimerActive) {
+              navBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#A8CCA7] bg-[#EEF4F0] text-[#24422B] shadow-2xs transition-all';
+            } else {
+              navBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-[#E4DDD2] bg-white/80 hover:bg-white text-[#554942] transition-all shadow-2xs';
+            }
+          }
+        }
+
+        function startTimer() {
+          if (isTimerActive) return;
+          isTimerActive = true;
+          if (timerInterval) clearInterval(timerInterval);
+          document.getElementById('timer-play-icon').classList.add('hidden');
+          document.getElementById('timer-pause-icon').classList.remove('hidden');
+          document.getElementById('timer-btn-label').textContent = 'Pause Sprint';
+          document.getElementById('timer-status-text').textContent = 'Active Focus Sprint in Progress';
+
+          timerInterval = setInterval(() => {
+            if (remainingTimerSeconds <= 1) {
+              clearInterval(timerInterval);
+              isTimerActive = false;
+              remainingTimerSeconds = 0;
+              updateTimerDisplays();
+              playChimeAlert();
+              document.getElementById('timer-status-text').textContent = 'Pomodoro Complete! Take a 5m pause.';
+              document.getElementById('timer-play-icon').classList.remove('hidden');
+              document.getElementById('timer-pause-icon').classList.add('hidden');
+              document.getElementById('timer-btn-label').textContent = 'Start Sprint';
+              return;
+            }
+            remainingTimerSeconds--;
+            updateTimerDisplays();
+          }, 1000);
+
+          updateTimerDisplays();
+        }
+
+        function pauseTimer() {
+          if (!isTimerActive) return;
+          clearInterval(timerInterval);
+          isTimerActive = false;
+          document.getElementById('timer-play-icon').classList.remove('hidden');
+          document.getElementById('timer-pause-icon').classList.add('hidden');
+          document.getElementById('timer-btn-label').textContent = 'Resume Sprint';
+          document.getElementById('timer-status-text').textContent = 'Sprint Paused';
+          updateTimerDisplays();
+        }
+
+        function resetTimer(seconds) {
+          clearInterval(timerInterval);
+          isTimerActive = false;
+          totalTimerSeconds = seconds;
+          remainingTimerSeconds = seconds;
+          document.getElementById('timer-play-icon').classList.remove('hidden');
+          document.getElementById('timer-pause-icon').classList.add('hidden');
+          document.getElementById('timer-btn-label').textContent = 'Start Sprint';
+          document.getElementById('timer-status-text').textContent = 'Pomodoro Focus Sprint';
+          updateTimerDisplays();
+        }
+
+        function openTimerModal() {
+          document.getElementById('timer-modal-backdrop').classList.remove('hidden');
+        }
+
+        function closeTimerModal() {
+          document.getElementById('timer-modal-backdrop').classList.add('hidden');
+        }
+
+        // -------------------------------------------------------------
+        // H. DISTRACTION-FREE PASSAGE READER MODAL
+        // -------------------------------------------------------------
+        function openReaderModal(bookId) {
+          const book = BOOKS_DATA.find(b => b.id === bookId);
+          if (!book) return;
+
+          currentReadingBookId = bookId;
+          const isAlreadyFinished = readBookIds.includes(bookId);
+
+          document.getElementById('reader-title').textContent = book.title;
+          document.getElementById('reader-author').textContent = `By ${book.author} · ${book.discipline} (${book.year})`;
+          document.getElementById('reader-meta').textContent = `${book.estimatedMinutes} min read · ${book.wordCount} words`;
+
+          const doneLabel = document.getElementById('reader-done-label');
+          if (doneLabel) {
+            doneLabel.textContent = isAlreadyFinished 
+              ? 'Finished Reading Passage (Recorded)' 
+              : 'Finished Reading Passage';
+          }
+
+          const contentEl = document.getElementById('reader-content');
+          contentEl.innerHTML = book.content.map(p => `
+            <p class="leading-relaxed opacity-95">${p}</p>
+          `).join('');
+
+          document.getElementById('reader-modal-backdrop').classList.remove('hidden');
+          window.scrollTo(0, 0);
+        }
+
+        function closeReaderModal() {
+          document.getElementById('reader-modal-backdrop').classList.add('hidden');
+        }
+
+        // -------------------------------------------------------------
+        // I. INITIALIZATION AND EVENT LISTENERS
+        // -------------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', function() {
+          // 1. Initial Render
+          renderBooksGrid();
+          updateBookshelfCounterUI();
+          updateQuoteUI(0);
+          updateTimerDisplays();
+          startQuoteAutoCycle();
+
+          // 2. Bookshelf Drawer & Reading History Tab Listeners
+          document.getElementById('navbar-bookshelf-btn').addEventListener('click', openBookshelfDrawer);
+          document.getElementById('nav-open-bookshelf-link').addEventListener('click', openBookshelfDrawer);
+          document.getElementById('close-bookshelf-btn').addEventListener('click', closeBookshelfDrawer);
+          document.getElementById('close-drawer-bottom-btn').addEventListener('click', closeBookshelfDrawer);
+          
+          document.getElementById('tab-saved-books').addEventListener('click', function() {
+            setDrawerTab('saved');
+          });
+          document.getElementById('tab-reading-history').addEventListener('click', function() {
+            setDrawerTab('history');
+          });
+
+          document.getElementById('bookshelf-drawer-backdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeBookshelfDrawer();
+          });
+
+          document.getElementById('clear-bookshelf-btn').addEventListener('click', function() {
+            if (drawerActiveTab === 'saved') {
+              savedBooks = [];
+              saveBookshelf(savedBooks);
+              showToastNotification('Cleared Saved Bookshelf queue.');
+            } else {
+              readBookIds = [];
+              saveReadBookshelf(readBookIds);
+              showToastNotification('Cleared Reading History.');
+            }
+            updateBookshelfCounterUI();
+            renderBookshelfDrawerList();
+            renderBooksGrid();
+          });
+
+          // 3. Dynamic Quote Listeners
+          document.getElementById('quote-next-btn').addEventListener('click', nextQuote);
+          document.getElementById('quote-prev-btn').addEventListener('click', prevQuote);
+          
+          document.querySelectorAll('.quote-dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+              const idx = parseInt(this.getAttribute('data-index'), 10);
+              updateQuoteUI(idx);
+            });
+          });
+
+          const quoteToggleBtn = document.getElementById('quote-toggle-play-btn');
+          quoteToggleBtn.addEventListener('click', function() {
+            if (isQuoteCyclingActive) {
+              stopQuoteAutoCycle();
+              isQuoteCyclingActive = false;
+              document.getElementById('quote-pause-icon').classList.add('hidden');
+              document.getElementById('quote-play-icon').classList.remove('hidden');
+            } else {
+              startQuoteAutoCycle();
+              isQuoteCyclingActive = true;
+              document.getElementById('quote-pause-icon').classList.remove('hidden');
+              document.getElementById('quote-play-icon').classList.add('hidden');
+            }
+          });
+
+          const quoteCard = document.getElementById('quote-card');
+          quoteCard.addEventListener('mouseenter', () => {
+            if (isQuoteCyclingActive) stopQuoteAutoCycle();
+          });
+          quoteCard.addEventListener('mouseleave', () => {
+            if (isQuoteCyclingActive) startQuoteAutoCycle();
+          });
+
+          // 4. Pomodoro Focus Timer Modal Listeners
+          document.getElementById('navbar-timer-btn').addEventListener('click', openTimerModal);
+          document.getElementById('nav-open-timer-link').addEventListener('click', openTimerModal);
+          document.getElementById('hero-open-timer-btn').addEventListener('click', openTimerModal);
+          document.getElementById('close-timer-btn').addEventListener('click', closeTimerModal);
+          document.getElementById('timer-modal-backdrop').addEventListener('click', function(e) {
+            if (e.target === this) closeTimerModal();
+          });
+
+          document.getElementById('modal-timer-toggle-btn').addEventListener('click', function() {
+            if (isTimerActive) {
+              pauseTimer();
+            } else {
+              startTimer();
+            }
+          });
+
+          document.getElementById('modal-timer-reset-btn').addEventListener('click', function() {
+            resetTimer(totalTimerSeconds);
+          });
+
+          document.getElementById('preset-25m').addEventListener('click', function() {
+            this.className = 'px-3.5 py-1.5 rounded-lg bg-[#5C7C65] text-white shadow-2xs font-semibold';
+            document.getElementById('preset-5m').className = 'px-3.5 py-1.5 rounded-lg bg-[#F2ECE3] text-[#554942] hover:bg-[#EAE2D7] transition-colors';
+            resetTimer(25 * 60);
+          });
+
+          document.getElementById('preset-5m').addEventListener('click', function() {
+            this.className = 'px-3.5 py-1.5 rounded-lg bg-[#5C7C65] text-white shadow-2xs font-semibold';
+            document.getElementById('preset-25m').className = 'px-3.5 py-1.5 rounded-lg bg-[#F2ECE3] text-[#554942] hover:bg-[#EAE2D7] transition-colors';
+            resetTimer(5 * 60);
+          });
+
+          // 5. Reader Modal Listeners with Milestone Tracking
+          document.getElementById('close-reader-btn').addEventListener('click', closeReaderModal);
+          
+          const closeActionBtn = document.getElementById('reader-close-action-btn');
+          if (closeActionBtn) {
+            closeActionBtn.addEventListener('click', closeReaderModal);
+          }
+
+          document.getElementById('reader-done-btn').addEventListener('click', function() {
+            if (currentReadingBookId) {
+              if (!readBookIds.includes(currentReadingBookId)) {
+                readBookIds = [...readBookIds, currentReadingBookId];
+                saveReadBookshelf(readBookIds);
+                const book = BOOKS_DATA.find(b => b.id === currentReadingBookId);
+                showToastNotification(`✓ Marked "${book ? book.title : 'Text'}" as finished! Added to Reading History.`);
+              } else {
+                const book = BOOKS_DATA.find(b => b.id === currentReadingBookId);
+                showToastNotification(`"${book ? book.title : 'Text'}" is already in your Reading History.`);
+              }
+              updateBookshelfCounterUI();
+              renderBookshelfDrawerList();
+              renderBooksGrid();
+            }
+            closeReaderModal();
+          });
+
+          // ESC key closes modals
+          window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+              closeBookshelfDrawer();
+              closeTimerModal();
+              closeReaderModal();
+            }
+          });
+        });
+
+      })();
+    </script>
+
+  </body>
+</html>
